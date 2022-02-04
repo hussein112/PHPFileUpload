@@ -8,21 +8,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $errors = [];
 
-    $images = $_FILES['files']; 
+    $allowed_extensions = ["jpg", "jpeg", "png", "jfif"];
 
-
-    $name = $_FILES['files']['name'];
-    $type = $_FILES['files']['type'];
-    $tmp = $_FILES['files']['tmp_name'];
-    $error = $_FILES['files']['error'];
-    $size = $_FILES['files']['size'];
-
-
-
-    for($i = 0; $i < count($images); $i++){
-        echo $name[$i];
-        move_uploaded_file($tmp[$i], __DIR__ . "\\Images\\" . $name[$i]);
+    $images = $_FILES['files'];
+    
+    $name = explode(".", $images['name']); // Remove all the dots from the name
+    // $name = [0] -> file name, [1] -> file extension
+    // In case of multiple files
+    $extension = end($name);
+    if(! in_array($extension, $allowed_extensions)){
+        $errors['extension'] = "Only Jpg, Jpeg, Png, and JFIF are allowed";
     }
+
+
+
+    // for($i = 0; $i < count($images); $i++){
+    //     echo $name[$i];
+    //     move_uploaded_file($tmp[$i], __DIR__ . "\\Images\\" . $name[$i]);
+    // }
 
     // if($size > 10000){
     //     $errors['size'] = "File Cannot Be More Than 10 000 Bytes.";
@@ -32,20 +35,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     // }
 
 
-    // if(empty($errors)){
-    //     move_uploaded_file($tmp, __DIR__ . "\\Images" . $name);
-    //     echo "File Uploaded";
-    // }else{
-    //     foreach($errors as $error){
-    //         echo $error . "<br>";
-    //     }
-    // }
+    if(empty($errors)){
+        move_uploaded_file($images['tmp_name'], __DIR__ . "\\Images\\" . $images['name']);
+        echo "File Uploaded";
+    }else{
+        foreach($errors as $error){
+            echo $error . "<br>";
+        }
+    }
 }
 
 ?>
 
 
 <form action="" method="post" enctype="multipart/form-data">
-    <input type="file" name="files[]" multiple="multiple"><br><br>
+    <input type="file" name="files" multiple="multiple"><br><br>
     <input type="submit" name="upload" value="Upload">
 </form>
