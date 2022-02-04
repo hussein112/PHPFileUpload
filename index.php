@@ -5,50 +5,69 @@
  * 
  */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    
 
-    $errors = [];
 
     $allowed_extensions = ["jpg", "jpeg", "png", "jfif"];
 
-    $images = $_FILES['files'];
     
-    $name = explode(".", $images['name']); // Remove all the dots from the name
-    // $name = [0] -> file name, [1] -> file extension
-    // In case of multiple files
-    $extension = end($name);
-    if(! in_array($extension, $allowed_extensions)){
-        $errors['extension'] = "Only Jpg, Jpeg, Png, and JFIF are allowed";
+    $images = $_FILES['files'];
+
+    $name = $images['name'];
+    $type = $images['type'];
+    $tmp = $images['tmp_name'];
+    $error = $images['error'];
+    $size = $images['size'];
+    
+
+    // Check if no file is uploaded
+    if($error[0] == 4){ // 4 -> No file was uploaded.
+        die("Please Choose a File to Upload");
     }
 
 
+    for($i = 0; $i < count($images); $i++){
+        $errors = [];
+        
+        
+        
+        // Check Size
+        if($size[$i] > 200000){
+            $errors['size'] = "Cannot Upload File More Than 200 000 Bytes.";
+        }
 
-    // for($i = 0; $i < count($images); $i++){
-    //     echo $name[$i];
-    //     move_uploaded_file($tmp[$i], __DIR__ . "\\Images\\" . $name[$i]);
-    // }
-
-    // if($size > 10000){
-    //     $errors['size'] = "File Cannot Be More Than 10 000 Bytes.";
-    // }
-    // if($error == 4){ // 4 -> No file was uploaded.
-    //     $errors['empty_file'] = "Please Choose a File to Upload";
-    // }
+        // Check Extensions
+        $_name = explode(".", $name[$i]); 
+        $extension = end($_name);
+        if(! in_array($extension, $allowed_extensions)){
+            $errors['extension'] = "Only Jpg, Jpeg, Png, and JFIF are allowed";
+        }
 
 
-    if(empty($errors)){
-        move_uploaded_file($images['tmp_name'], __DIR__ . "\\Images\\" . $images['name']);
-        echo "File Uploaded";
-    }else{
-        foreach($errors as $error){
-            echo $error . "<br>";
+
+        // Finally
+        if(empty($errors)){
+            move_uploaded_file($tmp[$i], __DIR__ . "\\Images\\" . $name[$i]);
+            echo "<b>File " . $name[$i] . " Uploaded</b>";
+        }else{
+            echo "<b>" . $name[$i] . "</b>  ==>  ";
+            foreach($errors as $error){
+                echo $error . "<br>";
+            }
         }
     }
+
+
+    
+
+
+    
 }
 
 ?>
 
 
 <form action="" method="post" enctype="multipart/form-data">
-    <input type="file" name="files" multiple="multiple"><br><br>
+    <input type="file" name="files[]" multiple="multiple"><br><br>
     <input type="submit" name="upload" value="Upload">
 </form>
