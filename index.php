@@ -8,35 +8,44 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $errors = [];
 
-    $name = $_FILES['file']['name'];
-    $type = $_FILES['file']['type'];
-    $tmp = $_FILES['file']['tmp_name'];
-    $error = $_FILES['file']['error'];
-    $size = $_FILES['file']['size'];
+    $images = $_FILES['files']; 
 
 
-    if($size > 10000){
-        $errors['size'] = "File Cannot Be More Than 10 000 Bytes.";
+    $name = $_FILES['files']['name'];
+    $type = $_FILES['files']['type'];
+    $tmp = $_FILES['files']['tmp_name'];
+    $error = $_FILES['files']['error'];
+    $size = $_FILES['files']['size'];
+
+
+
+    for($i = 0; $i < count($images); $i++){
+        echo $name[$i];
+        move_uploaded_file($tmp[$i], __DIR__ . "\\Images\\" . $name[$i]);
     }
-    if($error == 4){ // 4 -> No file was uploaded.
-        $errors['empty_file'] = "Please Choose a File to Upload";
-    }
+
+    // if($size > 10000){
+    //     $errors['size'] = "File Cannot Be More Than 10 000 Bytes.";
+    // }
+    // if($error == 4){ // 4 -> No file was uploaded.
+    //     $errors['empty_file'] = "Please Choose a File to Upload";
+    // }
 
 
-    if(empty($errors)){
-        move_uploaded_file($tmp, __DIR__ . "\\Images" . $name);
-        echo "File Uploaded";
-    }else{
-        foreach($errors as $error){
-            echo $error . "<br>";
-        }
-    }
+    // if(empty($errors)){
+    //     move_uploaded_file($tmp, __DIR__ . "\\Images" . $name);
+    //     echo "File Uploaded";
+    // }else{
+    //     foreach($errors as $error){
+    //         echo $error . "<br>";
+    //     }
+    // }
 }
 
 ?>
 
 
 <form action="" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" multiple="multiple"><br><br>
+    <input type="file" name="files[]" multiple="multiple"><br><br>
     <input type="submit" name="upload" value="Upload">
 </form>
